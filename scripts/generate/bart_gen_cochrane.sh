@@ -10,8 +10,8 @@ python -u modeling/finetune.py \
 --data_dir=$DATA_DIR \
 --num_train_epochs=1 \
 --learning_rate=3e-5 \
---train_batch_size=1 \
---eval_batch_size=1 \
+--train_batch_size=8 \
+--eval_batch_size=8 \
 --output_dir=$MODEL_DIR \
 --gpus=1 \
 --max_source_length=1024 \
