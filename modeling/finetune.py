@@ -481,7 +481,7 @@ def create_weight_vector(fname, model):
 
 
 def set_ul_params(model, hparams):
-
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     #parameters for unlikelihood training
     model.unlikelihood_training = hparams.unlikelihood_training
 
@@ -524,7 +524,7 @@ def set_ul_params(model, hparams):
         for i in range(len(ids)):
             weight_vector[ids[i]] = weights[i]
 
-        model.weight_vector = weight_vector.to('cuda')
+        model.weight_vector = weight_vector.to(device)
         model.binary_weight_mask = (weight_vector != 0).int()
 
     else:
@@ -601,7 +601,7 @@ def main(args, model=None) -> SummarizationModule:
             args,
             logging_callback=Seq2SeqLoggingCallback(),
             checkpoint_callback=get_checkpoint_callback(args.output_dir, model.val_metric, save_top_k, lower_is_better),
-            early_stopping_callback=es_callback,
+            # early_stopping_callback=es_callback,
             logger=logger,
         )
         pickle_save(model.hparams, model.output_dir / "hparams.pkl")

@@ -194,11 +194,11 @@ class BaseTransformer(pl.LightningModule):
     def total_steps(self) -> int:
         """The number of total training steps that will be run. Used for lr scheduler purposes."""
         num_devices = max(1, self.hparams.gpus)  # TODO: consider num_tpu_cores
-        effective_batch_size = self.hparams.train_batch_size * self.hparams.accumulate_grad_batches * num_devices
+        effective_batch_size = self.hparams.train_batch_size * 1 * 1
         return (self.dataset_size / effective_batch_size) * self.hparams.max_epochs
 
-    def setup(self, mode):
-        if mode == "test":
+    def setup(self, stage):
+        if stage == "test":
             self.dataset_size = len(self.test_dataloader().dataset)
         else:
             self.train_loader = self.get_dataloader("train", self.hparams.train_batch_size, shuffle=True)
@@ -413,6 +413,8 @@ def generic_train(
 
     if args.gpus > 1:
         train_params["distributed_backend"] = "ddp"
+    
+    # train_params["accelerator"] = "cpu"
 
     train_params["accumulate_grad_batches"] = args.accumulate_grad_batches
 
@@ -422,7 +424,7 @@ def generic_train(
         callbacks=[logging_callback] + extra_callbacks,
         logger=logger,
         checkpoint_callback=checkpoint_callback,
-        early_stop_callback=early_stopping_callback,
+        # early_stop_callback=early_stopping_callback,
         **train_params,
     )
 
