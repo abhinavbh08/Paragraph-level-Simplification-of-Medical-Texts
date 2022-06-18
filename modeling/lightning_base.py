@@ -414,7 +414,7 @@ def generic_train(
     if args.gpus > 1:
         train_params["distributed_backend"] = "ddp"
     
-    train_params["accelerator"] = "cpu"
+    # train_params["accelerator"] = "cpu"
 
     train_params["accumulate_grad_batches"] = args.accumulate_grad_batches
 
