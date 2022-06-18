@@ -414,7 +414,7 @@ def generic_train(
     if args.gpus > 1:
         train_params["distributed_backend"] = "ddp"
     
-    # train_params["accelerator"] = "cpu"
+    train_params["accelerator"] = "cpu"
 
     train_params["accumulate_grad_batches"] = args.accumulate_grad_batches
 
@@ -422,7 +422,7 @@ def generic_train(
         args,
         weights_summary=None,
         callbacks=[logging_callback] + extra_callbacks,
-        logger=logger,
+        logger=False,
         checkpoint_callback=checkpoint_callback,
         # early_stop_callback=early_stopping_callback,
         **train_params,

@@ -244,14 +244,16 @@ class SummarizationModule(BaseTransformer):
     def training_step(self, batch, batch_idx) -> Dict:
         loss_tensors = self._step(batch)
 
-        logs = {name: loss for name, loss in zip(self.loss_names, loss_tensors)}
+        # logs = {name: loss for name, loss in zip(self.loss_names, loss_tensors)}
         # tokens per batch
-        logs["tpb"] = batch["input_ids"].ne(self.pad).sum() + batch["labels"].ne(self.pad).sum()
-        logs["bs"] = batch["input_ids"].shape[0]
-        logs["src_pad_tok"] = batch["input_ids"].eq(self.pad).sum()
-        logs["src_pad_frac"] = batch["input_ids"].eq(self.pad).float().mean()
+        # logs["tpb"] = batch["input_ids"].ne(self.pad).sum() + batch["labels"].ne(self.pad).sum()
+        # logs["bs"] = batch["input_ids"].shape[0]
+        # logs["src_pad_tok"] = batch["input_ids"].eq(self.pad).sum()
+        # logs["src_pad_frac"] = batch["input_ids"].eq(self.pad).float().mean()
         # TODO(SS): make a wandb summary metric for this
-        return {"loss": loss_tensors[0], "log": logs}
+        # return {"loss": loss_tensors[0], "log": logs}
+
+        return {"loss": loss_tensors[0]}
 
     def validation_step(self, batch, batch_idx) -> Dict:
         return self._generative_step(batch)
@@ -273,12 +275,18 @@ class SummarizationModule(BaseTransformer):
         all_metrics["step_count"] = self.step_count
         self.metrics[prefix].append(all_metrics)  # callback writes this to self.metrics_save_path
         preds = flatten_list([x["preds"] for x in outputs])
+        # return {
+        #    "log": all_metrics,
+        #     "preds": preds,
+        #     f"{prefix}_loss": loss,
+        #     f"{prefix}_{self.val_metric}": metric_tensor,
+        # }
         return {
-           "log": all_metrics,
             "preds": preds,
             f"{prefix}_loss": loss,
             f"{prefix}_{self.val_metric}": metric_tensor,
         }
+
 
     def calc_generative_metrics(self, preds, target) -> Dict:
         return calculate_rouge(preds, target)
@@ -599,10 +607,10 @@ def main(args, model=None) -> SummarizationModule:
         trainer: pl.Trainer = generic_train(
             model,
             args,
-            logging_callback=Seq2SeqLoggingCallback(),
+            # logging_callback=Seq2SeqLoggingCallback(),
             checkpoint_callback=get_checkpoint_callback(args.output_dir, model.val_metric, save_top_k, lower_is_better),
             # early_stopping_callback=es_callback,
-            logger=logger,
+            logger=False,
         )
         pickle_save(model.hparams, model.output_dir / "hparams.pkl")
 
