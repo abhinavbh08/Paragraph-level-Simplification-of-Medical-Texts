@@ -79,11 +79,11 @@ class SummarizationModule(BaseTransformer):
 
         super().__init__(hparams, num_labels=None, mode=self.mode, **kwargs)
         use_task_specific_params(self.model, "summarization")
-        self.metrics_save_path = Path(self.output_dir) / "metrics.json"
+        # self.metrics_save_path = Path(self.output_dir) / "metrics.json"
         self.hparams_save_path = Path(self.output_dir) / "hparams.pkl"
         pickle_save(self.hparams, self.hparams_save_path)
         self.step_count = 0
-        self.metrics = defaultdict(list)
+        # self.metrics = defaultdict(list)
         self.model_type = self.config.model_type
         self.vocab_size = self.config.tgt_vocab_size if self.model_type == "fsmt" else self.config.vocab_size
 
@@ -262,18 +262,18 @@ class SummarizationModule(BaseTransformer):
         self.step_count += 1
         losses = {k: torch.stack([x[k] for x in outputs]).mean() for k in self.loss_names}
         loss = losses["loss"]
-        generative_metrics = {
-            k: np.array([x[k] for x in outputs]).mean() for k in self.metric_names + ["gen_time", "gen_len"]
-        }
-        metric_val = (
-            generative_metrics[self.val_metric] if self.val_metric in generative_metrics else losses[self.val_metric]
-        )
-        metric_tensor: torch.FloatTensor = torch.tensor(metric_val).type_as(loss)
-        generative_metrics.update({k: v.item() for k, v in losses.items()})
-        losses.update(generative_metrics)
-        all_metrics = {f"{prefix}_avg_{k}": x for k, x in losses.items()}
-        all_metrics["step_count"] = self.step_count
-        self.metrics[prefix].append(all_metrics)  # callback writes this to self.metrics_save_path
+        # generative_metrics = {
+        #     k: np.array([x[k] for x in outputs]).mean() for k in self.metric_names + ["gen_time", "gen_len"]
+        # }
+        # metric_val = (
+        #     generative_metrics[self.val_metric] if self.val_metric in generative_metrics else losses[self.val_metric]
+        # )
+        # metric_tensor: torch.FloatTensor = torch.tensor(metric_val).type_as(loss)
+        # generative_metrics.update({k: v.item() for k, v in losses.items()})
+        # losses.update(generative_metrics)
+        # all_metrics = {f"{prefix}_avg_{k}": x for k, x in losses.items()}
+        # all_metrics["step_count"] = self.step_count
+        # self.metrics[prefix].append(all_metrics)  # callback writes this to self.metrics_save_path
         preds = flatten_list([x["preds"] for x in outputs])
         # return {
         #    "log": all_metrics,
@@ -284,7 +284,7 @@ class SummarizationModule(BaseTransformer):
         return {
             "preds": preds,
             f"{prefix}_loss": loss,
-            f"{prefix}_{self.val_metric}": metric_tensor,
+            # f"{prefix}_{self.val_metric}": metric_tensor,
         }
 
 
