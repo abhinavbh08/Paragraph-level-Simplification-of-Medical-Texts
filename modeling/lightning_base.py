@@ -300,7 +300,7 @@ class LoggingCallback(pl.Callback):
     def on_batch_end(self, trainer, pl_module):
         lr_scheduler = trainer.lr_schedulers[0]["scheduler"]
         lrs = {f"lr_group_{i}": lr for i, lr in enumerate(lr_scheduler.get_lr())}
-        pl_module.logger.log_metrics(lrs)
+        # pl_module.logger.log_metrics(lrs)
 
     def on_validation_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
         rank_zero_info("***** Validation results *****")
@@ -401,8 +401,8 @@ def generic_train(
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
             filepath=args.output_dir, prefix="checkpoint", monitor="val_loss", mode="min", save_top_k=1
         )
-    if logging_callback is None:
-        logging_callback = LoggingCallback()
+    # if logging_callback is None:
+    #     logging_callback = LoggingCallback()
 
     train_params = {}
 
@@ -421,7 +421,8 @@ def generic_train(
     trainer = pl.Trainer.from_argparse_args(
         args,
         weights_summary=None,
-        callbacks=[logging_callback] + extra_callbacks,
+        # callbacks=[logging_callback] + extra_callbacks,
+        callbacks=extra_callbacks,
         logger=False,
         checkpoint_callback=checkpoint_callback,
         # early_stop_callback=early_stopping_callback,
